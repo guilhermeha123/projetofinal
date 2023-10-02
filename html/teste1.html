@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venda de Produtos - Festa Junina</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #FFA500;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #FFA500;
+        }
+        p {
+            line-height: 1.5;
+        }
+        button {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Festa Junina</h1>
+    </header>
+    <div class="container">
+        <h2>Cardápio</h2>
+        <h3>Comidas Salgadas</h3>
+        <label for="comida1">Pastel (R$ 5,00)</label>
+        <input type="checkbox" id="comida1" value="5.00"><br>
+        <label for="comida2">Coxinha (R$ 4,00)</label>
+        <input type="checkbox" id="comida2" value="4.00"><br>
+        <label for="comida3">Pipoca (R$ 3,00)</label>
+        <input type="checkbox" id="comida3" value="3.00"><br>
+
+        <h3>Doces</h3>
+        <label for="doce1">Pé de Moleque (R$ 2,00)</label>
+        <input type="checkbox" id="doce1" value="2.00"><br>
+        <label for="doce2">Canjica (R$ 3,50)</label>
+        <input type="checkbox" id="doce2" value="3.50"><br>
+        <label for="doce3">Arroz Doce (R$ 3,00)</label>
+        <input type="checkbox" id="doce3" value="3.00"><br>
+
+        <h3>Bebidas</h3>
+        <label for="bebida1">Quentão (R$ 6,00)</label>
+        <input type="checkbox" id="bebida1" value="6.00"><br>
+        <label for="bebida2">Refrigerante (R$ 4,00)</label>
+        <input type="checkbox" id="bebida2" value="4.00"><br>
+        <label for="bebida3">Água (R$ 2,00)</label>
+        <input type="checkbox" id="bebida3" value="2.00"><br>
+
+        <h2>Total: R$ <span id="total">0.00</span></h2>
+        <button onclick="calcularTotal()">Calcular Total</button>
+    </div>
+
+    <script>
+        function calcularTotal() {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            var total = 0;
+            checkboxes.forEach(function (checkbox) {
+                total += parseFloat(checkbox.value);
+            });
+            document.getElementById('total').textContent = total.toFixed(2);
+        }
+    </script>
+</body>
+</html>
