@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venda de Produtos - Festa Junina</title>
+    <style>
+        /* Estilos para a página */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #FFA500;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        h2 {
+            color: #FFA500;
+        }
+        p {
+            line-height: 1.5;
+        }
+        button {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .item img {
+            max-width: 50px;
+            max-height: 50px;
+            margin-right: 10px;
+        }
+        #total {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        #logo {
+            max-width: 150px;
+            max-height: 150px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #FFA500;
+            color: white;
+        }
+        .right {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
+        /* Estilos para o pop-up */
+        .popup-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1;
+        }
+        .popup {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        .popup input[type="number"] {
+            width: 100px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+        .popup button {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        /* Estilos para a impressão */
+        @media print {
+            body {
+                background-color: white;
+            }
+            header, .container {
+                display: none;
+            }
+            .item {
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+            .item:last-child {
+                page-break-after: auto;
+            }
+            .item img {
+                max-width: 100%;
+                height: auto;
+            }
+            table {
+                width: 100%;
+                page-break-inside: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="festajunina-logo.png" alt="Logo Festa Junina" id="logo">
+        <h1>Festa Junina</h1>
+    </header>
+    <div class="container">
+        <h2>Cardápio</h2>
+        <div class="item">
+            <img src="pastel.jpg" alt="Pastel">
+            <span>Pastel (R$ <span id="valorPastel">5.00</span>)</span>
+            <button onclick="abrirPopup('Pastel')">Alterar Valor</button>
+            <input type="number" id="quantidadePastel" value="0" min="0">
+            <button onclick="adicionarProduto('Pastel')">Adicionar</button>
+            <button onclick="removerProduto('Pastel')">Remover</button>
+        </div>
+
+        <!-- Adicione os outros produtos aqui -->
+
+        <button onclick="gerarRelatorio()">Gerar Relatório</button>
+        <button id="imprimirButton" style="display: none;" onclick="imprimirRelatorio()">Imprimir</button>
+        <button class="right" onclick="limparTotal()">Limpar Total</button>
+
+        <h2>Relatório de Compras</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Preço Unitário</th>
+                    <th>Quantidade</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody id="relatorio">
+                <!-- Conteúdo do relatório será gerado dinamicamente aqui -->
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3">Total Geral</th>
+                    <th id="totalGeral">R$ 0.00</th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Pop-up para alterar valor -->
+    <div class="popup-container" id="popupContainer">
+        <div class="popup">
+            <label for="novoValor">Novo Valor (R$): </label>
+            <input type="number" id="novoValor" step="0.01">
+            <button onclick="salvarNovoValor()">Salvar</button>
+            <button onclick="fecharPopup()">Fechar</button>
+        </div>
+    </div>
+
+    <script>
+        var total = 0;
+        var relatorioItens = {};
+        var produtoAtual = '';
+
+        var valoresProdutos = {
+            'Pastel': 5.00,
+            // Adicione aqui os valores dos outros produtos
+        };
+
+        // Função para abrir o pop-up de alteração de valor
+        function abrirPopup(nomeProduto) {
+            produtoAtual = nomeProduto;
+            document.getElementById('novoValor').value = valoresProdutos[nomeProduto].toFixed(2);
+            document.getElementById('popupContainer').style.display = 'flex';
+        }
+
+        // Função para salvar o novo valor e atualizar
+        function salvarNovoValor() {
+            var novoValor = parseFloat(document.getElementById('novoValor').value);
+            if (!isNaN(novoValor)) {
+                valoresProdutos[produtoAtual] = novoValor;
+                document.getElementById('valor' + produtoAtual).textContent = novoValor.toFixed(2);
+                fecharPopup();
+            }
+        }
+
+        // Função para fechar o pop-up
+        function fecharPopup() {
+            document.getElementById('popupContainer').style.display = 'none';
+        }
+
+        function adicionarProduto(nome) {
+            var valor = valoresProdutos[nome];
+            total += valor;
+            // Verifica se o produto já foi adicionado e incrementa a quantidade
+            if (relatorioItens[nome]) {
+                relatorioItens[nome].quantidade++;
+                relatorioItens[nome].total = relatorioItens[nome].quantidade * valor;
+            } else {
+                relatorioItens[nome] = { preco: valor, quantidade: 1, total: valor };
+            }
+            atualizarTotal();
+            gerarRelatorio(); // Adicionado para atualizar o relatório ao adicionar produto
+        }
+
+        function removerProduto(nome) {
+            var valor = valoresProdutos[nome];
+            total -= valor;
+            // Verifica se o produto já foi adicionado e decrementa a quantidade
+            if (relatorioItens[nome]) {
+                relatorioItens[nome].quantidade--;
+                relatorioItens[nome].total = relatorioItens[nome].quantidade * valor;
+                // Remove o item se a quantidade for zero
+                if (relatorioItens[nome].quantidade === 0) {
+                    delete relatorioItens[nome];
+                }
+            }
+            atualizarTotal();
+            gerarRelatorio(); // Adicionado para atualizar o relatório ao remover produto
+        }
+
+        function atualizarTotal() {
+            document.getElementById('total').textContent = total.toFixed(2);
+            if (total > 0) {
+                document.getElementById('imprimirButton').style.display = 'inline-block';
+            } else {
+                document.getElementById('imprimirButton').style.display = 'none';
+            }
+        }
+
+        function gerarRelatorio() {
+            var relatorioTable = document.getElementById('relatorio');
+            relatorioTable.innerHTML = '';
+            var totalGeral = 0;
+
+            for (var nomeProduto in relatorioItens) {
+                if (relatorioItens.hasOwnProperty(nomeProduto)) {
+                    var item = relatorioItens[nomeProduto];
+                    var row = relatorioTable.insertRow();
+                    var cell1 = row.insertCell(0);
+                    var cell2 = row.insertCell(1);
+                    var cell3 = row.insertCell(2);
+                    var cell4 = row.insertCell(3);
+                    cell1.textContent = nomeProduto;
+                    cell2.textContent = 'R$ ' + valoresProdutos[nomeProduto].toFixed(2);
+                    cell3.textContent = item.quantidade;
+                    cell4.textContent = 'R$ ' + item.total.toFixed(2);
+                    totalGeral += item.total;
+                }
+            }
+
+            var totalGeralCell = document.getElementById('totalGeral');
+            totalGeralCell.textContent = 'R$ ' + totalGeral.toFixed(2);
+        }
+
+        function limparTotal() {
+            total = 0;
+            relatorioItens = {};
+            atualizarTotal();
+            gerarRelatorio();
+        }
+
+        function imprimirRelatorio() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
